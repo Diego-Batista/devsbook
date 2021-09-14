@@ -1,7 +1,7 @@
 <?php
-require 'config.php';
-require 'models/Auth.php';
-require 'dao/PostDaoMysql.php';
+require_once 'config.php';
+require_once 'models/Auth.php';
+require_once 'dao/PostDaoMysql.php';
 
 // Passando por parametro o pdo para pegar o token e base para acesso ao banco de dados
 $auth = new Auth($pdo, $base);
@@ -10,8 +10,6 @@ $activeMenu = 'home';
 
 $postDao = new PostDaoMysql($pdo);
 $feed = $postDao->getHomeFeed($userInfo->id);
-
-
 
 require 'partials/header.php';
 require 'partials/menu.php';
@@ -26,8 +24,6 @@ require 'partials/menu.php';
                 <?php require 'partials/feed-item.php'; ?>
             <?php endforeach; ?>
             
-            
-
         </div>
         <div class="column side pl-5">
             <div class="box banners">
