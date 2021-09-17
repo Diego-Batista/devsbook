@@ -19,7 +19,7 @@ class UserDaoMysql implements UserDAO
         $u->email = $array['email'] ?? '';
         $u->password = $array['password'] ?? '';
         $u->name = $array['name'] ?? '';
-        $u->brithdate = $array['brithdate'] ?? '';
+        $u->birthdate = $array['birthdate'] ?? '';
         $u->city = $array['city'] ?? '';
         $u->work = $array['work'] ?? '';
         $u->avatar = $array['avatar'] ?? '';
@@ -131,7 +131,7 @@ class UserDaoMysql implements UserDAO
             email = :email,
             password = :password,
             name = :name,
-            brithdate = :brithdate,
+            birthdate = :birthdate,
             city = :city,
             work = :work,
             avatar = :avatar,
@@ -142,7 +142,7 @@ class UserDaoMysql implements UserDAO
         $sql->bindValue(':email', $u->email);
         $sql->bindValue(':password', $u->password);
         $sql->bindValue(':name', $u->name);
-        $sql->bindValue(':brithdate', $u->brithdate);
+        $sql->bindValue(':birthdate', $u->birthdate);
         $sql->bindValue(':city', $u->city);
         $sql->bindValue(':work', $u->work);
         $sql->bindValue(':avatar', $u->avatar);
@@ -165,7 +165,7 @@ class UserDaoMysql implements UserDAO
         $sql->bindValue(':name', $u->name);
         $sql->bindValue(':email', $u->email);
         $sql->bindValue(':password', $u->password);
-        $sql->bindValue(':brithdate', $u->brithdate);
+        $sql->bindValue(':birthdate', $u->birthdate);
         $sql->bindValue(':token', $u->token);
         $sql->execute();
 

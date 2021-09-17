@@ -1,10 +1,11 @@
 <?php
-class User {
+class User
+{
     public $id;
     public $name;
     public $password;
     public $email;
-    public $brithdate;
+    public $birthdate;
     public $city;
     public $work;
     public $avatar;
@@ -12,7 +13,8 @@ class User {
     public $token;
 }
 
-interface UserDAO {
+interface UserDAO
+{
     public function findByToken($token);
     public function findByEmail($email);
     public function findById($id);

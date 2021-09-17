@@ -29,7 +29,7 @@ if (!$user) {
     exit;
 }
 
-$dateFrom = new DateTime($user->brithdate);
+$dateFrom = new DateTime($user->birthdate);
 $dateTo = new DateTime('today');
 $user->ageYears = $dateFrom->diff($dateTo)->y;
 

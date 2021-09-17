@@ -5,40 +5,38 @@ require 'models/Auth.php';
 $name = filter_input(INPUT_POST, 'name');
 $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
 $password = filter_input(INPUT_POST, 'password');
-$brithdate = filter_input(INPUT_POST, 'brithdate');
+$birthdate = filter_input(INPUT_POST, 'brithdate');
 
-if($name && $email && $password && $brithdate) {
+if ($name && $email && $password && $birthdate) {
 
     $auth = new Auth($pdo, $base);
 
-    $brithdate = explode('/', $brithdate);
-    if(count($brithdate) != 3) {
+    $birthdate = explode('/', $birthdate);
+    if (count($birthdate) != 3) {
         $_SESSION['flash'] = 'Data de nascimento invalida';
-        header("Location: ".$base."/signup.php");
+        header("Location: " . $base . "/signup.php");
         exit;
     }
 
-    $brithdate = $brithdate[2].'-'.$brithdate[1].'-'.$brithdate[0];
-    if(strtotime($brithdate) === false) {
+    $birthdate = $birthdate[2] . '-' . $birthdate[1] . '-' . $birthdate[0];
+    if (strtotime($birthdate) === false) {
         $_SESSION['flash'] = 'Data de nascimento invalida';
-        header("Location: ".$base."/signup.php");
+        header("Location: " . $base . "/signup.php");
         exit;
     }
 
-    if($auth->emailExists($email) === false) {
+    if ($auth->emailExists($email) === false) {
 
-        $auth->registerUser($name, $email, $password, $brithdate);
-        header("Location: ".$base);
+        $auth->registerUser($name, $email, $password, $birthdate);
+        header("Location: " . $base);
         exit;
-
     } else {
         $_SESSION['flash'] = 'E-mail já cadastrado';
-        header("Location: ".$base."/signup.php");
+        header("Location: " . $base . "/signup.php");
         exit;
     }
-
-} 
+}
 
 $_SESSION['flash'] = 'Campos não enviados';
-header("Location: ".$base."/signup.php");
+header("Location: " . $base . "/signup.php");
 exit;

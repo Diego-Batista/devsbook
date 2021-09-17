@@ -29,7 +29,7 @@ if (!$user) {
     exit;
 }
 
-$dateFrom = new DateTime($user->brithdate);
+$dateFrom = new DateTime($user->birthdate);
 $dateTo = new DateTime('today');
 $user->ageYears = $dateFrom->diff($dateTo)->y;
 
@@ -88,7 +88,7 @@ require 'partials/menu.php';
 
                     <div class="user-info-mini">
                         <img src="<?= $base; ?>/assets/images/calendar.png" />
-                        <?= date('d/m/Y', strtotime($user->brithdate)); ?> (<?= $user->ageYears ?> anos)
+                        <?= date('d/m/Y', strtotime($user->birthdate)); ?> (<?= $user->ageYears ?> anos)
                     </div>
 
                     <?php if (!empty($user->city)) : ?>
