@@ -2,15 +2,19 @@
 require_once 'models/Post.php';
 require_once 'dao/UserRelationDaoMysql.php';
 require_once 'dao/UserDaoMysql.php';
+require_once 'dao/PostLikeDaoMysql.php';
 
-class PostDaoMysql implements PostDAO {
+class PostDaoMysql implements PostDAO
+{
     private $pdo;
 
-    public function __construct(PDO $driver) {
+    public function __construct(PDO $driver)
+    {
         $this->pdo = $driver;
     }
 
-    public function insert(Post $p) {
+    public function insert(Post $p)
+    {
         $sql = $this->pdo->prepare('INSERT INTO posts (
             id_user, type, created_at, body
         ) VALUES (
@@ -24,7 +28,8 @@ class PostDaoMysql implements PostDAO {
         $sql->execute();
     }
 
-    public function getHomeFeed($id_user){
+    public function getHomeFeed($id_user)
+    {
         $array = [];
 
         // 1. Lista dos usuários que eu sigo
@@ -33,8 +38,8 @@ class PostDaoMysql implements PostDAO {
         $userList[] = $id_user;
 
         // 2. Pegar os posts ordenado ple data
-        $sql = $this->pdo->query("SELECT * FROM posts WHERE id_user IN (".implode(',', $userList).") ORDER BY created_at DESC");
-        if($sql->rowCount() > 0) {
+        $sql = $this->pdo->query("SELECT * FROM posts WHERE id_user IN (" . implode(',', $userList) . ") ORDER BY created_at DESC");
+        if ($sql->rowCount() > 0) {
             $data = $sql->fetchAll(PDO::FETCH_ASSOC);
 
             // 3. Transformar o resultado em objetos
@@ -44,14 +49,15 @@ class PostDaoMysql implements PostDAO {
         return $array;
     }
 
-    public function getUserFeed($id_user){
+    public function getUserFeed($id_user)
+    {
         $array = [];
 
         $sql = $this->pdo->prepare("SELECT * FROM posts WHERE id_user = :id_user ORDER BY created_at DESC");
         $sql->bindValue(':id_user', $id_user);
         $sql->execute();
 
-        if($sql->rowCount() > 0) {
+        if ($sql->rowCount() > 0) {
             $data = $sql->fetchAll(PDO::FETCH_ASSOC);
             $array = $this->_postListToObject($data, $id_user);
         }
@@ -59,14 +65,15 @@ class PostDaoMysql implements PostDAO {
         return $array;
     }
 
-    public function getPhotosFrom($id_user){
+    public function getPhotosFrom($id_user)
+    {
         $array = [];
 
         $sql = $this->pdo->prepare("SELECT * FROM posts WHERE id_user = :id_user AND type = 'photo' ORDER BY created_at DESC");
         $sql->bindValue(':id_user', $id_user);
         $sql->execute();
 
-        if($sql->rowCount() > 0) {
+        if ($sql->rowCount() > 0) {
             $data = $sql->fetchAll(PDO::FETCH_ASSOC);
             $array = $this->_postListToObject($data, $id_user);
         }
@@ -75,10 +82,13 @@ class PostDaoMysql implements PostDAO {
         return $array;
     }
 
-    private function _postListToObject($post_list, $id_user) {
+    private function _postListToObject($post_list, $id_user)
+    {
         $posts = [];
         $userDao = new UserDaoMysql($this->pdo);
+        $postLikeDao = new PostLikeDaoMysql($this->pdo);
         $userList[] = $id_user;
+
 
         foreach ($post_list as $post_item) {
             $newPost = new Post();
@@ -88,7 +98,7 @@ class PostDaoMysql implements PostDAO {
             $newPost->body = $post_item['body'];
             $newPost->mine = false;
 
-            if($post_item['id_user'] == $id_user) {
+            if ($post_item['id_user'] == $id_user) {
                 $newPost->mine = true;
             }
 
@@ -96,14 +106,13 @@ class PostDaoMysql implements PostDAO {
             $newPost->user = $userDao->findById($post_item['id_user']);
 
             // Informações sobre Like
-            $newPost->likeCount = 0;
-            $newPost->liked = false;
+            $newPost->likeCount = $postLikeDao->getLikeCount($newPost->id);
+            $newPost->liked = $postLikeDao->isLiked($newPost->id, $id_user);
 
             // Informações sobre comentarios 
             $newPost->comments = [];
 
             $posts[] = $newPost;
-            
         }
 
         return $posts;
