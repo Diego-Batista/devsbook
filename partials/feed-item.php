@@ -49,7 +49,9 @@ switch ($item->type) {
             <div class="like-btn <?= $item->liked ? 'on' : ''; ?>"><?= $item->likeCount; ?></div>
             <div class="msg-btn"><?= count($item->comments); ?></div>
         </div>
+
         <div class="feed-item-comments">
+
             <div class="feed-item-comments-area">
                 <?php foreach ($item->comments as $comment) : ?>
                     <div class="fic-item row m-height-10 m-width-20">
