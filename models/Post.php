@@ -1,5 +1,6 @@
 <?php
-class Post {
+class Post
+{
     public $id;
     public $id_user;
     public $type; // text / photo / video / sound
@@ -7,8 +8,10 @@ class Post {
     public $body;
 }
 
-interface PostDAO {
+interface PostDAO
+{
     public function insert(Post $p);
+    public function delete($id, $id_user);
     public function getHomeFeed($id_user);
     public function getUserFeed($id_user);
     public function getPhotosFrom($id_user);

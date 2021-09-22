@@ -1,14 +1,14 @@
 <?php
-require 'config.php';
-require 'models/Auth.php';
-require 'dao/PostDaoMysql.php';
+require_once 'config.php';
+require_once 'models/Auth.php';
+require_once 'dao/PostDaoMysql.php';
 
 $auth = new Auth($pdo, $base);
 $userInfo = $auth->checkToken();
 
 $body = filter_input(INPUT_POST, 'body');
 
-if($body){
+if ($body) {
     $postDao = new PostDaoMysql($pdo);
 
     $newPost = new Post();
@@ -20,5 +20,5 @@ if($body){
     $postDao->insert($newPost);
 }
 
-header('Location: '.$base);
+header('Location: ' . $base);
 exit;
