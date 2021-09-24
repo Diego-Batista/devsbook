@@ -45,7 +45,7 @@ class UserDaoMysql implements UserDAO
             }
 
             // Fotos
-            $u->photos = $postDaoMysql->getPhotosFrom($u->id);
+            $u->photos = $postDaoMysql->getPhotosFrom($u->id, $u->id);
         }
 
         return $u;

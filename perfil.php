@@ -20,6 +20,12 @@ if ($id !== $userInfo->id) {
     $activeMenu = '';
 }
 
+// Pegar insformações de paginação
+$page = intval(filter_input(INPUT_GET, 'p'));
+if ($page < 1) {
+    $page = 1;
+}
+
 $postDao = new PostDaoMysql($pdo);
 $userDao = new UserDaoMysql($pdo);
 $userRelationDao = new UserRelationDaoMysql($pdo);
@@ -36,7 +42,10 @@ $dateTo = new DateTime('today');
 $user->ageYears = $dateFrom->diff($dateTo)->y;
 
 // Pegar o feed do usuário
-$feed = $postDao->getUserFeed($id);
+$info = $postDao->getUserFeed($id, $page, $userInfo->id);
+$feed = $info['feed'];
+$pages = $info['pages'];
+$currentPage = $info['currentPage'];
 
 // Verificar se eu sigo este usuário
 $isFollowing = $userRelationDao->isFollowing($userInfo->id, $id);
@@ -191,6 +200,14 @@ require 'partials/menu.php';
                 <?php foreach ($feed as $item) : ?>
                     <?php require 'partials/feed-item.php'; ?>
                 <?php endforeach; ?>
+
+                <div class="feed-pagination">
+                    <?php for ($q = 0; $q < $pages; $q++) : ?>
+                        <a class="<?= ($q + 1 == $currentPage) ? 'active' : '' ?>" href="<?= $base ?>/perfil.php?id=<?= $id ?>&p=<?= $q + 1 ?>">
+                            <?= $q + 1 ?>
+                        </a>
+                    <?php endfor; ?>
+                </div>
 
             <?php else : ?>
                 Ainda não há postagens deste usuário.

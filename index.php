@@ -8,8 +8,13 @@ $auth = new Auth($pdo, $base);
 $userInfo = $auth->checkToken();
 $activeMenu = 'home';
 
+$page = intval(filter_input(INPUT_GET, 'p'));
+if ($page < 1) {
+    $page = 1;
+}
+
 $postDao = new PostDaoMysql($pdo);
-$info = $postDao->getHomeFeed($userInfo->id);
+$info = $postDao->getHomeFeed($userInfo->id, $page, $userInfo->id);
 $feed = $info['feed'];
 $pages = $info['pages'];
 $currentPage = $info['currentPage'];
@@ -45,8 +50,8 @@ require 'partials/menu.php';
                     </div>
                 </div>
                 <div class="box-body">
-                    <a href=""><img src="https://alunos.b7web.com.br/media/courses/php-nivel-1.jpg" /></a>
-                    <a href=""><img src="https://alunos.b7web.com.br/media/courses/laravel-nivel-1.jpg" /></a>
+                    <a href=""><img src="https://alunos.b7web.com.br/media/courses/php.jpg" /></a>
+                    <a href=""><img src="https://alunos.b7web.com.br/media/courses/laravel.jpg" /></a>
                 </div>
             </div>
             <div class="box">

@@ -62,30 +62,25 @@ class PostDaoMysql implements PostDAO
         }
     }
 
-    public function getHomeFeed($id_user)
+    public function getHomeFeed($id_user, $page = 1,  $logged_user): array
     {
-        $array = [];
+        $array = ['feed' => []];
         $perPage = 5;
 
-        $page = intval(filter_input(INPUT_GET, 'p'));
-        if ($page < 1) {
-            $page = 1;
-        }
         $offset = ($page - 1) * $perPage;
-
 
         // 1. Lista dos usuários que eu sigo
         $urDao = new UserRelationDaoMysql($this->pdo);
         $userList = $urDao->getFollowing($id_user);
         $userList[] = $id_user;
 
-        // 2. Pegar os posts ordenado ple data
+        // 2. Pegar os posts ordenado pela data
         $sql = $this->pdo->query("SELECT * FROM posts WHERE id_user IN (" . implode(',', $userList) . ") ORDER BY created_at DESC LIMIT $offset,$perPage");
         if ($sql->rowCount() > 0) {
             $data = $sql->fetchAll(PDO::FETCH_ASSOC);
 
             // 3. Transformar o resultado em objetos
-            $array['feed'] = $this->_postListToObject($data, $id_user);
+            $array['feed'] = $this->_postListToObject($data, $id_user, $logged_user);
         }
 
         // 4. Pegar o total de posts
@@ -100,23 +95,38 @@ class PostDaoMysql implements PostDAO
         return $array;
     }
 
-    public function getUserFeed($id_user)
+    public function getUserFeed($id_user, $page = 1,  $logged_user): array
     {
-        $array = [];
+        $array = ['feed' => []];
+        $perPage = 5;
 
-        $sql = $this->pdo->prepare("SELECT * FROM posts WHERE id_user = :id_user ORDER BY created_at DESC");
+
+        $offset = ($page - 1) * $perPage;
+
+        $sql = $this->pdo->prepare("SELECT * FROM posts WHERE id_user = :id_user ORDER BY created_at DESC LIMIT $offset,$perPage");
         $sql->bindValue(':id_user', $id_user);
         $sql->execute();
 
         if ($sql->rowCount() > 0) {
             $data = $sql->fetchAll(PDO::FETCH_ASSOC);
-            $array = $this->_postListToObject($data, $id_user);
+            $array['feed'] = $this->_postListToObject($data, $id_user, $logged_user);
         }
+
+        $sql = $this->pdo->prepare("SELECT COUNT(*) as c FROM posts WHERE id_user = :id_user ");
+        $sql->bindValue(':id_user', $id_user);
+        $sql->execute();
+
+        $totalData = $totalData = $sql->fetch();
+        $total = $totalData['c'];
+
+        $array['pages'] = ceil($total / $perPage);
+
+        $array['currentPage'] = $page;
 
         return $array;
     }
 
-    public function getPhotosFrom($id_user)
+    public function getPhotosFrom($id_user,  $logged_user)
     {
         $array = [];
 
@@ -126,14 +136,14 @@ class PostDaoMysql implements PostDAO
 
         if ($sql->rowCount() > 0) {
             $data = $sql->fetchAll(PDO::FETCH_ASSOC);
-            $array = $this->_postListToObject($data, $id_user);
+            $array = $this->_postListToObject($data, $id_user, $logged_user);
         }
 
 
         return $array;
     }
 
-    private function _postListToObject($post_list, $id_user)
+    private function _postListToObject(array $post_list, $id_user,  $logged_user)
     {
         $posts = [];
         $userDao = new UserDaoMysql($this->pdo);
@@ -150,7 +160,7 @@ class PostDaoMysql implements PostDAO
             $newPost->body = $post_item['body'];
             $newPost->mine = false;
 
-            if ($post_item['id_user'] == $id_user) {
+            if ($post_item['id_user'] ==  $logged_user) {
                 $newPost->mine = true;
             }
 
@@ -159,7 +169,7 @@ class PostDaoMysql implements PostDAO
 
             // Informações sobre Like
             $newPost->likeCount = $postLikeDao->getLikeCount($newPost->id);
-            $newPost->liked = $postLikeDao->isLiked($newPost->id, $id_user);
+            $newPost->liked = $postLikeDao->isLiked($newPost->id, $logged_user);
 
             // Informações sobre comentarios 
             $newPost->comments = $PostCommentDao->getComments($newPost->id);
